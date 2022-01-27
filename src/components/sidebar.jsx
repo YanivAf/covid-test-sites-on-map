@@ -15,94 +15,16 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 
 export const drawerWidth = 300;
 
-const sites = [
-  {
-  sTitle: 'Site1',
-  lat: 32,
-  lng: 35,
-  sDetails: 'some info...',
-  sTestType: 'PCR',
-  sType: 'Walk in',
-  createdAt: new Date(),
-  updatedAt: new Date()
-  },
-  {
-    sTitle: 'Site2',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'Both',
-    sType: 'Both',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site3',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'Antigen',
-    sType: 'Walk in',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site4',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'PCR',
-    sType: 'Drive in',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site5',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'PCR',
-    sType: 'Walk in',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site6',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'Antigen',
-    sType: 'Both',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site7',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'Both',
-    sType: 'Drive in',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    },
-  {
-    sTitle: 'Site8',
-    lat: 32,
-    lng: 35,
-    sDetails: 'some info...',
-    sTestType: 'PCR',
-    sType: 'Walk in',
-    createdAt: new Date(),
-    updatedAt: new Date()
-    }
-];
-const bothSiteTypesCount = sites.filter(site => site.sType === 'Both').length;
-const walkInSitesCount = sites.filter(site => site.sType === 'Walk in').length;
-const driveInSitesCount = sites.filter(site => site.sType === 'Drive in').length;
-const bothTestTypesCount = sites.filter(site => site.sTestType === 'Both').length;
-const pcrTypeCount = sites.filter(site => site.sTestType === 'PCR').length;
-const antigenTypeCount = sites.filter(site => site.sTestType === 'Antigen').length;
+const allSites = JSON.parse(localStorage.getItem('allSites')) ?
+JSON.parse(localStorage.getItem('allSites')) :
+[];
+
+const bothSiteTypesCount = allSites.filter(site => site.sType === 'Both').length;
+const walkInSitesCount = allSites.filter(site => site.sType === 'Walk in').length;
+const driveInSitesCount = allSites.filter(site => site.sType === 'Drive in').length;
+const bothTestTypesCount = allSites.filter(site => site.sTestType === 'Both').length;
+const pcrTypeCount = allSites.filter(site => site.sTestType === 'PCR').length;
+const antigenTypeCount = allSites.filter(site => site.sTestType === 'Antigen').length;
 
 
 export default function Sidebar() {
@@ -134,7 +56,7 @@ export default function Sidebar() {
           height: '70vh',
           overflowY: 'auto'
       }}>
-        {sites.map((site) => (
+        {allSites.map((site) => (
           <ListItem button key={site.sTitle}>
             <ListItemIcon title={site.sType} sx={{display:'flex', flexDirection:'column', alignItems: 'center'}}>
               {site.sType === 'Both' ? <AllInclusiveIcon /> : site.sType === 'Walk in' ? <DirectionsWalkIcon /> : <DriveEtaIcon />}
@@ -149,15 +71,15 @@ export default function Sidebar() {
           </ListItem>
         ))}
       </List>
-      {sites.length > 0 &&
+      {allSites.length > 0 &&
       <>
         <Divider />
         <List>
           <ListItem>
-            <ListItemText secondary={`Walk-in: ${walkInSitesCount + bothSiteTypesCount} | Drive-in: ${driveInSitesCount + bothSiteTypesCount} | Total: ${sites.length}`} />
+            <ListItemText secondary={`Walk-in: ${walkInSitesCount + bothSiteTypesCount} | Drive-in: ${driveInSitesCount + bothSiteTypesCount} | Total: ${allSites.length}`} />
             </ListItem>
           <ListItem>
-            <ListItemText secondary={`PCR: ${pcrTypeCount + bothTestTypesCount} | Antigen: ${antigenTypeCount + bothTestTypesCount} | Total: ${sites.length}`} />
+            <ListItemText secondary={`PCR: ${pcrTypeCount + bothTestTypesCount} | Antigen: ${antigenTypeCount + bothTestTypesCount} | Total: ${allSites.length}`} />
           </ListItem>
         </List>
       </>
