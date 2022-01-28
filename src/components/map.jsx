@@ -1,12 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import axios from 'axios';
 
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import '../map.css';
+import SiteMarker from './siteMarker';
+import TempMarker from './tempMarker';
 
 const initialLocation = {
   address: 'Kikar Hamedina',
@@ -16,99 +13,93 @@ const initialLocation = {
 
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-const LocationPin = () => (
-  <div className="pin">
-    <LocationOnIcon className="pin-icon" />
-  </div>
-);
-
-export default function Map() {
-  const [allSites, setAllSites] = useState(
-    JSON.parse(localStorage.getItem('allSites')) ?
-    JSON.parse(localStorage.getItem('allSites')) :
-    []
-  );
+export default function Map({ allSites, setAllSites, setSnackbar }) {
+  const [currentZoom, setCurrentZoom] = useState(7);
+  const [tempMarker, setTempMarker] = useState({ show: false, lat: null, lng: null });
 
   const isInIsrael = async (lat, lng) => {
     const isCountryIsrael = (geoLocationsArray, recurse) => {
-      const mostAccurate = geoLocationsArray[geoLocationsArray.length - 1]; // assumption: last result is most accurate. YA
-      if (mostAccurate.types.includes('country') && !recurse) {
-        if (mostAccurate.short_name === 'IL') {
-          console.log('In Israel!');
+      const countryItem = geoLocationsArray[geoLocationsArray.length - 1]; // assumption: last result is the country item. YA
+      if (countryItem.types.includes('country') && !recurse) {
+        if (countryItem.short_name === 'IL') {
+          setSnackbar({
+            open: true,
+            message: "Please set your site details",
+            severity: "info"
+          });
           return true;
         } else {
-          console.log('Not in Israel!');
+          setSnackbar({
+            open: true,
+            message: "Not in Israel! Please select a location in Israel",
+            severity: "error"
+          });
           return false;
         }
       } else if (recurse) {
-        const addressComponents = mostAccurate.address_components;
+        const addressComponents = countryItem.address_components;
         return isCountryIsrael(addressComponents, false);
       } else {
-        console.log('Could not detect the country. Please select a location in Israel');
+        setSnackbar({
+          open: true,
+          message: "Could not detect the country. Please select a location in Israel",
+          severity: "warning"
+        });
         return false;
       }
     }
 
     const { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
     const geoResults = data.results;
-    if (geoResults.length > 2) {
+    if ((geoResults.length > 2) && (currentZoom > 17)) {
       return isCountryIsrael(geoResults, true);
     } else {
-      console.log('Could not detect the country. Please zoom-in and try again.');
+      setSnackbar({
+        open: true,
+        message: "For reasonable accuracy, Please zoom-in and try again",
+        severity: "warning"
+      });
       return false;
     }
   }
 
-  const addMarker = async (lat, lng) => {
+  const showTempMarker = async (lat, lng) => {
     const inIsrael = await isInIsrael(lat, lng);
-    if (inIsrael) {
-      const updatedAllSites = [...allSites];
-      // **
-      // show pop-up form to get required site data from user
-      // **
-      updatedAllSites.push({ // if form is submitted
-        sTitle: `Site${allSites.length + 2}`,
-        lat,
-        lng,
-        sDetails: 'some info...',
-        sTestType: 'Both',
-        sType: 'Drive in',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      setAllSites(updatedAllSites);
-      localStorage.setItem('allSites', JSON.stringify(updatedAllSites));
-    }
+    if (inIsrael) setTempMarker({ show: true, lat, lng })
   }
-
-  useEffect(() => {
-  }, []);
-
+  
   return (
-    <Box
-    component="main"
-    sx={{
-      flexGrow: 1,
-      bgcolor: 'background.default',
-      p: 3
-    }}
+    <GoogleMapReact
+        bootstrapURLKeys={{ key: apiKey }}
+        defaultCenter={initialLocation}
+        defaultZoom={7}
+        zoom={currentZoom}
+        style = {{ 
+          width: '100%',
+          height: '100%',
+          margin: '10px'
+        }}
+        onClick={e => showTempMarker(e.lat,e.lng)}
+        onChange={e => setCurrentZoom(e.zoom)}
     >
-        <Toolbar />
-        <GoogleMapReact
-            bootstrapURLKeys={{ key: apiKey }}
-            defaultCenter={initialLocation}
-            defaultZoom={10}
-            style = {{ 
-              width: '100%',
-              height: '100%'        
-            }}
-            onClick={e => addMarker(e.lat,e.lng)}        
-        >
-          <LocationPin
-          lat={32}
-          lng={35}
+      {allSites.length > 0 &&
+      allSites.map(site => {
+        if (!site.archived) return (
+          <SiteMarker
+            key={site.sId}
+            lat={site.lat}
+            lng={site.lng}
+            site={site}
           />
-        </GoogleMapReact>
-    </Box>
+        )
+        })}
+      
+      {tempMarker.show &&
+      <TempMarker 
+        lat={tempMarker.lat}
+        lng={tempMarker.lng}
+        setAllSites={setAllSites}
+      />}
+    </GoogleMapReact>
   );
 }
