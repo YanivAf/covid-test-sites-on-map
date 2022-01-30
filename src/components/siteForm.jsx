@@ -58,7 +58,11 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
 
   const getExistingSiteIndex = (updatedAllSites) => {
     const siteToUpdateIndex = updatedAllSites.findIndex(site => (site.sId === existingSite.sId));
-    if (siteToUpdateIndex === -1) return handleSnackbar(`Issues finding to site. Please refresh`, "error");
+    if (siteToUpdateIndex === -1) handleSnackbar(`Issues finding to site. Please refresh`, "error");
+    if (updatedAllSites[siteToUpdateIndex].archived) {
+      handleSnackbar(`Action is not allowed for archived sites. Please refresh`, "error");
+      return -1;
+    }
     return siteToUpdateIndex;
   }
 
@@ -66,8 +70,8 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
     e.preventDefault();
     const updatedAllSites = [...allSites];
     if (!existingSite) {
-      const titleDuplicate = updatedAllSites.filter(site => (site.sTitle === siteInputs.sTitle));
-      const locationDuplicate = updatedAllSites.filter(site => (site.lat === lat && site.lng === lng));
+      const titleDuplicate = updatedAllSites.filter(site => (site.sTitle === siteInputs.sTitle && site.archived === false));
+      const locationDuplicate = updatedAllSites.filter(site => (site.lat === lat && site.lng === lng && site.archived === false));
       if (titleDuplicate.length > 0) return handleSnackbar(`Site title "${siteInputs.sTitle}" already exists. Please change and try again`, "error");
       if (locationDuplicate.length > 0) return handleSnackbar(`Site location already exists. Please change and try again`, "error");
       updatedAllSites.push({

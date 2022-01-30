@@ -23,7 +23,7 @@ export default function SiteMarker({ site }) {
   const id = open ? 'edit-site' : undefined;
 
   return (
-    <>
+    <div style={{ position: "absolute", transform: "translate(-50%, -50%)" }}>
     <IconButton aria-describedby={id} onClick={handleClick}>
       {site.sType === 'Both' ? <AllInclusiveIcon /> : site.sType === 'Walk in' ? <DirectionsWalkIcon /> : <DriveEtaIcon />}
     </IconButton>
@@ -43,6 +43,6 @@ export default function SiteMarker({ site }) {
     >
       <SiteForm existingSite={site} handleClosePopover={handleClose} />
     </Popover>
-    </>
+    </div>
   );
 }

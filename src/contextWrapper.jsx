@@ -9,6 +9,7 @@ export default function ContextWrapper({ children }) {
     []
   );
   const [tempMarker, setTempMarker] = useState({ show: false, lat: null, lng: null });
+  const [mapVisibleBounds, setMapVisibleBounds] = useState({ ne: {lat: null, lng: null}, nw: {lat: null, lng: null}, se: {lat: null, lng: null}, sw:{lat: null, lng: null} });
 
   return (
     <Context.Provider
@@ -17,6 +18,8 @@ export default function ContextWrapper({ children }) {
         setAllSites,
         tempMarker,
         setTempMarker,
+        mapVisibleBounds,
+        setMapVisibleBounds
       }}
     >
       <SnackbarProvider

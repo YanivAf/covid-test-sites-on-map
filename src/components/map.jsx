@@ -7,6 +7,9 @@ import axios from 'axios';
 import SiteMarker from './siteMarker';
 import TempMarker from './tempMarker';
 
+import { drawerWidth } from './sidebar';
+import { appbarHeight } from './appbar';
+
 const initialLocation = {
   address: 'Kikar Hamedina',
   lat: 32.086920,
@@ -16,7 +19,7 @@ const initialLocation = {
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
-  const { allSites, tempMarker, setTempMarker } = useContext(Context)
+  const { allSites, tempMarker, setTempMarker, setMapVisibleBounds } = useContext(Context)
   const [currentZoom, setCurrentZoom] = useState(7);
   const [currentCenter, setCurrentCenter] = useState({lat: initialLocation.lat, lng: initialLocation.lng});
   const { enqueueSnackbar } = useSnackbar();
@@ -87,12 +90,14 @@ export default function Map() {
           disableDoubleClickZoom: true
         }}
         style = {{ 
-          width: '100%',
-          height: '100%',
-          margin: '10px'
+          position: "fixed",
+          width: `calc(100% - ${drawerWidth}px)`,
+          height: `calc(100% - ${appbarHeight}px)`,
+          left: `${drawerWidth}px`,
+          top: `${appbarHeight}px`,
         }}
         onClick={e => handleTempMarker(e.event.target, e.lat, e.lng)}
-        onChange={e => setCurrentZoom(e.zoom)}
+        onChange={e => {setMapVisibleBounds(e.bounds); setCurrentZoom(e.zoom)}}
     >
       {allSites.length > 0 &&
       allSites.map(site => {
