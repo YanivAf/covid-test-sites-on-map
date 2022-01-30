@@ -1,4 +1,5 @@
-import React from 'react';
+import { useContext } from 'react';
+import Context from './context';
 
 import Drawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,8 +13,9 @@ import SitesList from './sitesList';
 
 export const drawerWidth = 300;
 
-export default function Sidebar({ allSites }) {
-
+export default function Sidebar() {
+  const { allSites } = useContext(Context);
+  
   const bothSiteTypesCount = allSites.filter(site => site.sType === 'Both').length;
   const walkInSitesCount = allSites.filter(site => site.sType === 'Walk in').length;
   const driveInSitesCount = allSites.filter(site => site.sType === 'Drive in').length;
@@ -46,7 +48,7 @@ export default function Sidebar({ allSites }) {
       <Divider />
       {allSites.length > 0 ?
       <>
-      <SitesList allSites={allSites} />
+      <SitesList />
       <Divider />
       <List>
         <ListItem>
@@ -57,7 +59,7 @@ export default function Sidebar({ allSites }) {
         </ListItem>
       </List>
       </> :
-      <Typography variant='body1'>There are currently no registered test sites. Click anywhere on the map to create a new test site</Typography>
+      <Typography variant='body1' align='center'>There are currently no registered test sites. Click anywhere on the map to create a new test site</Typography>
       }
     </Drawer>
   );

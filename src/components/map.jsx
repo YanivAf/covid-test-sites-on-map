@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import Context from './context';
+import { useSnackbar } from 'notistack';
 import GoogleMapReact from 'google-map-react';
 import axios from 'axios';
 
@@ -13,38 +15,44 @@ const initialLocation = {
 
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-export default function Map({ allSites, setAllSites, setSnackbar }) {
+export default function Map() {
+  const { allSites, tempMarker, setTempMarker } = useContext(Context)
   const [currentZoom, setCurrentZoom] = useState(7);
-  const [tempMarker, setTempMarker] = useState({ show: false, lat: null, lng: null });
+  const [currentCenter, setCurrentCenter] = useState({lat: initialLocation.lat, lng: initialLocation.lng});
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleSnackbar = (message, variant) => {
+    enqueueSnackbar(message, {
+      variant,
+      autoHideDuration: 5000,
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'center',
+      }
+    });
+  }
+
+  const handleTempMarker = (target, lat, lng) => {
+    if ((target.className === '') && (tempMarker.show)) setTempMarker({ ...tempMarker, show: false });
+    else if ((target.className === '') && (!tempMarker.show)) showTempMarker(lat, lng);
+  }
 
   const isInIsrael = async (lat, lng) => {
     const isCountryIsrael = (geoLocationsArray, recurse) => {
-      const countryItem = geoLocationsArray[geoLocationsArray.length - 1]; // assumption: last result is the country item. YA
+      const countryItem = geoLocationsArray[geoLocationsArray.length - 1]; // assumption: last result has country info. YA
       if (countryItem.types.includes('country') && !recurse) {
         if (countryItem.short_name === 'IL') {
-          setSnackbar({
-            open: true,
-            message: "Please set your site details",
-            severity: "info"
-          });
+          handleSnackbar("Please set your site details", "info");
           return true;
         } else {
-          setSnackbar({
-            open: true,
-            message: "Not in Israel! Please select a location in Israel",
-            severity: "error"
-          });
+          handleSnackbar("Not in Israel! Please select a location in Israel", "error");
           return false;
         }
       } else if (recurse) {
         const addressComponents = countryItem.address_components;
         return isCountryIsrael(addressComponents, false);
       } else {
-        setSnackbar({
-          open: true,
-          message: "Could not detect the country. Please select a location in Israel",
-          severity: "warning"
-        });
+        handleSnackbar("Could not detect the country. Please select a location in Israel", "warning");
         return false;
       }
     }
@@ -54,32 +62,36 @@ export default function Map({ allSites, setAllSites, setSnackbar }) {
     if ((geoResults.length > 2) && (currentZoom > 17)) {
       return isCountryIsrael(geoResults, true);
     } else {
-      setSnackbar({
-        open: true,
-        message: "For reasonable accuracy, Please zoom-in and try again",
-        severity: "warning"
-      });
+      handleSnackbar("For reasonable accuracy, Please zoom-in and try again", "warning");
       return false;
     }
   }
 
   const showTempMarker = async (lat, lng) => {
     const inIsrael = await isInIsrael(lat, lng);
-    if (inIsrael) setTempMarker({ show: true, lat, lng })
+    if (inIsrael) {
+      setCurrentCenter({lat: lat - (0.00001 + 0.00001*(currentZoom - 20))*currentZoom, lng});
+      setTempMarker({ show: true, lat, lng });
+    }
   }
   
   return (
+    <>
     <GoogleMapReact
         bootstrapURLKeys={{ key: apiKey }}
         defaultCenter={initialLocation}
         defaultZoom={7}
         zoom={currentZoom}
+        center={currentCenter}
+        options={{
+          disableDoubleClickZoom: true
+        }}
         style = {{ 
           width: '100%',
           height: '100%',
           margin: '10px'
         }}
-        onClick={e => showTempMarker(e.lat,e.lng)}
+        onClick={e => handleTempMarker(e.event.target, e.lat, e.lng)}
         onChange={e => setCurrentZoom(e.zoom)}
     >
       {allSites.length > 0 &&
@@ -98,8 +110,9 @@ export default function Map({ allSites, setAllSites, setSnackbar }) {
       <TempMarker 
         lat={tempMarker.lat}
         lng={tempMarker.lng}
-        setAllSites={setAllSites}
-      />}
+      />
+      }
     </GoogleMapReact>
+    </>
   );
 }
