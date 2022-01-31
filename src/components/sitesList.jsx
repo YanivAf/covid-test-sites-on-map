@@ -10,15 +10,17 @@ export default function SitesList() {
 
   return (
     <List
-    sx={{
-        height: '70vh',
-        overflowY: 'auto'
-    }}>
+      sx={{
+          height: '70vh',
+          overflowY: 'auto'
+      }}
+    >
       {allSites.map((site) => {
         if (!site.archived) return (
           <SiteListItem
             key={site.sId}
-            site={site} />
+            site={site}
+          />
         )
       })}
     </List>
