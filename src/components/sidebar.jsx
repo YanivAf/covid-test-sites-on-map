@@ -14,8 +14,7 @@ import SitesList from './sitesList';
 export const drawerWidth = 300;
 
 export default function Sidebar() {
-  const { allSites, mapVisibleBounds } = useContext(Context);
-  const allActiveSites = allSites.filter(site => site.archived === false);
+  const { allActiveSites, mapVisibleBounds } = useContext(Context);
   const allVisibleSites = allActiveSites.filter(site => (
     (site.lat > mapVisibleBounds.sw.lat) &&
     (site.lat < mapVisibleBounds.ne.lat) &&
@@ -67,7 +66,7 @@ export default function Sidebar() {
         height: '20vh',
       }}/>
       <Divider />
-      {allSites.length > 0 ?
+      {allActiveSites.length > 0 ?
       <>
       <SitesList />
       <Divider />

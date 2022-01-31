@@ -20,17 +20,6 @@ export default function SiteListItem({ site }) {
   const elementRef = useRef();
   const isListItemVisible = useOnScreen(elementRef);
 
-  const handleClick = () => {
-    setAnchorEl(markerAnchorEl);
-    setMarkerToHighlight(site.sId)
-    setCurrentCenter({ lat: site.lat, lng: site.lng });
-    setCurrentZoom(15);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const isMarkerVisible = (
     (site.lat > mapVisibleBounds.sw.lat) &&
     (site.lat < mapVisibleBounds.ne.lat) &&
@@ -38,9 +27,20 @@ export default function SiteListItem({ site }) {
     (site.lng < mapVisibleBounds.ne.lng)
   );
 
+  const handleClick = () => {
+    setMarkerToHighlight(site.sId);
+    setCurrentCenter({ lat: site.lat, lng: site.lng });
+    setCurrentZoom(15);
+    isMarkerVisible && setAnchorEl(markerAnchorEl);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const open = Boolean(anchorEl);
   const id = open ? 'edit-site' : undefined;
-
+  
   return (
     <>
     <ListItem

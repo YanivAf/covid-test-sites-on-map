@@ -1,20 +1,19 @@
 import { useContext } from 'react';
 import Context from './context';
 import { useSnackbar } from 'notistack';
-import GoogleMapReact from 'google-map-react';
+import GoogleMapReact, { fitBounds } from 'google-map-react';
 import axios from 'axios';
 
 import SiteMarker from './siteMarker';
 import TempMarker from './tempMarker';
 
-import { initialLocation } from '../contextWrapper';
 import { drawerWidth } from './sidebar';
 import { appbarHeight } from './appbar';
 
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
-  const { allSites, tempMarker, setTempMarker, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter } = useContext(Context)
+  const { allActiveSites, tempMarker, setTempMarker, mapVisibleBounds, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter, firstLoad, setFirstLoad } = useContext(Context)
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSnackbar = (message, variant) => {
@@ -31,6 +30,19 @@ export default function Map() {
   const handleTempMarker = (target, lat, lng) => {
     if ((target.className === '') && (tempMarker.show)) setTempMarker({ ...tempMarker, show: false });
     else if ((target.className === '') && (!tempMarker.show)) showTempMarker(lat, lng);
+  }
+
+  const handleChange = (e) => {
+    if (firstLoad) {
+      setFirstLoad(false);
+      const { zoom, center } = fitBounds(mapVisibleBounds, e.size);
+      setCurrentZoom(zoom);
+      setCurrentCenter(center);
+    } else {
+      setMapVisibleBounds(e.bounds);
+      setCurrentZoom(e.zoom);
+      setCurrentCenter({ lat: e.center.lat, lng: e.center.lng });
+    }
   }
 
   const isInIsrael = async (lat, lng) => {
@@ -75,7 +87,6 @@ export default function Map() {
     <>
     <GoogleMapReact
         bootstrapURLKeys={{ key: apiKey }}
-        defaultCenter={initialLocation}
         defaultZoom={7}
         zoom={currentZoom}
         center={currentCenter}
@@ -90,11 +101,11 @@ export default function Map() {
           top: `${appbarHeight}px`,
         }}
         onClick={e => handleTempMarker(e.event.target, e.lat, e.lng)}
-        onChange={e => {setMapVisibleBounds(e.bounds); setCurrentZoom(e.zoom); setCurrentCenter({ lat: e.center.lat, lng: e.center.lng });}}
+        onChange={handleChange}
     >
-      {allSites.length > 0 &&
-      allSites.map(site => {
-        if (!site.archived) return (
+      {allActiveSites.length > 0 &&
+      allActiveSites.map(site => {
+        return (
           <SiteMarker
             key={site.sId}
             lat={site.lat}
