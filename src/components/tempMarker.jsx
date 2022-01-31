@@ -16,7 +16,7 @@ export default function TempMarker() {
   return (
     <>
     <LocationOnIcon />
-    <Card sx={{ minWidth: 300 }}>
+    <Card sx={{ minWidth: 300, position: 'absolute', transform: "translate(10%, -50%)" }}>
       <CardHeader
         action={
           <IconButton aria-label='close-temp-marker' id='close-temp-marker' onClick={() => setTempMarker({ ...tempMarker, show: false })}>

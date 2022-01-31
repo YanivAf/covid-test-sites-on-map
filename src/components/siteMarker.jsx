@@ -1,20 +1,22 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import Context from './context';
+
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
 
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
-import IconButton from '@mui/material/IconButton';
-import Popover from '@mui/material/Popover';
 
 import SiteForm from './siteForm';
 
 export default function SiteMarker({ site }) {
-  const { markerToHighlight, setListItemToHighlight } = useContext(Context);
+  const { markerToHighlight, setListItemToHighlight, setMarkerAnchorEl } = useContext(Context);
   const [anchorEl, setAnchorEl] = useState(null);
+  const elementRef = useRef();
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (e) => {
+    setAnchorEl(e.currentTarget);
   };
 
   const handleClose = () => {
@@ -27,6 +29,12 @@ export default function SiteMarker({ site }) {
     '&:hover': { fontSize: '50px' },
     ...(markerToHighlight === site.sId && { fontSize: '50px' })
   };
+
+  useEffect(() => {
+    if (markerToHighlight === site.sId) {
+      setMarkerAnchorEl(elementRef.current);
+    }
+  }, [markerToHighlight]);
   
   return (
     <div style={{ position: "absolute", transform: "translate(-50%, -50%)" }}>
@@ -35,6 +43,7 @@ export default function SiteMarker({ site }) {
       onClick={handleClick}
       onMouseEnter={e => setListItemToHighlight(site.sId)}
       onMouseLeave={e => setListItemToHighlight(null)}
+      ref={elementRef}
     >
       {site.sType === 'Both' ?
         <AllInclusiveIcon

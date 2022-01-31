@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import Context from './context';
 import { useSnackbar } from 'notistack';
 import GoogleMapReact from 'google-map-react';
@@ -7,21 +7,14 @@ import axios from 'axios';
 import SiteMarker from './siteMarker';
 import TempMarker from './tempMarker';
 
+import { initialLocation } from '../contextWrapper';
 import { drawerWidth } from './sidebar';
 import { appbarHeight } from './appbar';
-
-const initialLocation = {
-  address: 'Kikar Hamedina',
-  lat: 32.086920,
-  lng: 34.788670,
-}
 
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
-  const { allSites, tempMarker, setTempMarker, setMapVisibleBounds } = useContext(Context)
-  const [currentZoom, setCurrentZoom] = useState(7);
-  const [currentCenter, setCurrentCenter] = useState({lat: initialLocation.lat, lng: initialLocation.lng});
+  const { allSites, tempMarker, setTempMarker, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter } = useContext(Context)
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSnackbar = (message, variant) => {
@@ -73,7 +66,7 @@ export default function Map() {
   const showTempMarker = async (lat, lng) => {
     const inIsrael = await isInIsrael(lat, lng);
     if (inIsrael) {
-      setCurrentCenter({lat: lat - (0.00001 + 0.00001*(currentZoom - 20))*currentZoom, lng});
+      setCurrentCenter({lat, lng});
       setTempMarker({ show: true, lat, lng });
     }
   }
@@ -97,7 +90,7 @@ export default function Map() {
           top: `${appbarHeight}px`,
         }}
         onClick={e => handleTempMarker(e.event.target, e.lat, e.lng)}
-        onChange={e => {setMapVisibleBounds(e.bounds); setCurrentZoom(e.zoom)}}
+        onChange={e => {setMapVisibleBounds(e.bounds); setCurrentZoom(e.zoom); setCurrentCenter({ lat: e.center.lat, lng: e.center.lng });}}
     >
       {allSites.length > 0 &&
       allSites.map(site => {
