@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import Context from './context';
 
 import Drawer from '@mui/material/Drawer';
-import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -10,12 +9,14 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 
 import SitesList from './sitesList';
+import FilterForm from './filterForm';
 
 export const drawerWidth = 300;
 
 export default function Sidebar() {
-  const { allActiveSites, mapVisibleBounds } = useContext(Context);
-  const allVisibleSites = allActiveSites.filter(site => (
+  const { allSites, filteredActiveSites, mapVisibleBounds } = useContext(Context);
+  const allActiveSites = allSites.filter(site => !site.archived);
+  const allVisibleSites = filteredActiveSites.filter(site => (
     (site.lat > mapVisibleBounds.sw.lat) &&
     (site.lat < mapVisibleBounds.ne.lat) &&
     (site.lng > mapVisibleBounds.sw.lng) &&
@@ -41,6 +42,7 @@ export default function Sidebar() {
   }
 
   const allActiveSitesCounts = getCounts(allActiveSites);
+  const filteredActiveSitesCounts = getCounts(filteredActiveSites);
   const allVisibleSitesCounts = getCounts(allVisibleSites);
 
   return (
@@ -61,12 +63,15 @@ export default function Sidebar() {
         }
       }}
     >
-      <Toolbar
-      sx={{
-        height: '20vh',
-      }}/>
+      {allActiveSites.length > 1 &&
+      <FilterForm
+        sx={{
+          height: '20vh',
+        }}
+      />
+      }
       <Divider />
-      {allActiveSites.length > 0 ?
+      {filteredActiveSites.length > 0 ?
       <>
       <SitesList />
       <Divider />
@@ -75,23 +80,28 @@ export default function Sidebar() {
           <ListItemText
             secondary={
               <span style={{display: 'flex', justifyContent: 'space-between', fontSize: 12}}>
-                <span>{`Walk-in: ${allVisibleSitesCounts.walkInSitesCount + allVisibleSitesCounts.bothSiteTypesCount} (of ${allActiveSitesCounts.walkInSitesCount + allActiveSitesCounts.bothSiteTypesCount})`}</span>
-                <span>{`Drive-in: ${allVisibleSitesCounts.driveInSitesCount + allVisibleSitesCounts.bothSiteTypesCount} (of ${allActiveSitesCounts.driveInSitesCount + allActiveSitesCounts.bothSiteTypesCount})`}</span>
-                <span>{`Total: ${allVisibleSites.length} (of ${allActiveSites.length})`}</span>
+                <span>{`Walk-in: ${allVisibleSitesCounts.walkInSitesCount + allVisibleSitesCounts.bothSiteTypesCount} (of ${filteredActiveSitesCounts.walkInSitesCount + filteredActiveSitesCounts.bothSiteTypesCount})`}</span>
+                <span>{`Drive-in: ${allVisibleSitesCounts.driveInSitesCount + allVisibleSitesCounts.bothSiteTypesCount} (of ${filteredActiveSitesCounts.driveInSitesCount + filteredActiveSitesCounts.bothSiteTypesCount})`}</span>
+                <span>{`Total: ${allVisibleSites.length} (of ${filteredActiveSites.length})`}</span>
               </span>} />
           </ListItem>
         <ListItem>
           <ListItemText
             secondary={
               <span style={{display: 'flex', justifyContent: 'space-between', fontSize: 12}}>
-                <span>{`PCR: ${allActiveSitesCounts.pcrTypeCount + allActiveSitesCounts.bothTestTypesCount} (of ${allActiveSitesCounts.pcrTypeCount + allActiveSitesCounts.bothTestTypesCount})`}</span>
-                <span>{`Antigen: ${allActiveSitesCounts.antigenTypeCount + allActiveSitesCounts.bothTestTypesCount} (of ${allActiveSitesCounts.antigenTypeCount + allActiveSitesCounts.bothTestTypesCount})`}</span>
-                <span>{`Total: ${allVisibleSites.length} (of ${allActiveSites.length})`}</span>
+                <span>{`PCR: ${allVisibleSitesCounts.pcrTypeCount + allVisibleSitesCounts.bothTestTypesCount} (of ${filteredActiveSitesCounts.pcrTypeCount + allActiveSitesCounts.bothTestTypesCount})`}</span>
+                <span>{`Antigen: ${allVisibleSitesCounts.antigenTypeCount + allVisibleSitesCounts.bothTestTypesCount} (of ${filteredActiveSitesCounts.antigenTypeCount + filteredActiveSitesCounts.bothTestTypesCount})`}</span>
+                <span>{`Total: ${allVisibleSites.length} (of ${filteredActiveSites.length})`}</span>
               </span>} />
         </ListItem>
       </List>
       </> :
-      <Typography variant='body1' align='center'>There are currently no registered test sites. Click anywhere on the map to create a new test site</Typography>
+      <Typography variant='body1' align='center'>
+        {allActiveSites.length > 0 ?
+        'No test sites match the selected filters, please expand your search to show available test sites' :
+        'There are currently no registered test sites. Click anywhere on the map to create a new test site'
+        }
+      </Typography>
       }
     </Drawer>
   );

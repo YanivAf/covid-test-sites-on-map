@@ -10,7 +10,11 @@ export const initialLocation = {
 
 export default function ContextWrapper({ children }) {
   const [allSites, setAllSites] = useState([]);
-  const [allActiveSites, setAllActiveSites] = useState([]);
+  const [sitesToInclude, setSitesToInclude] = useState({
+    sTypeToInclude: ['Walk in', 'Drive in', 'Both'],
+    sTestTypeToInclude: ['PCR', 'Antigen', 'Both']
+  }); 
+  const [filteredActiveSites, setFilteredActiveSites] = useState([]);
   const [tempMarker, setTempMarker] = useState({ show: false, lat: null, lng: null });
   const [currentZoom, setCurrentZoom] = useState(7);
   const [currentCenter, setCurrentCenter] = useState({ lat: initialLocation.lat, lng: initialLocation.lng });
@@ -28,9 +32,8 @@ export default function ContextWrapper({ children }) {
     if (data) {
       setAllSites(data);
       if (data.length > 0) {
-        const activeSites = data.filter(site => site.archived === false);
-        setAllActiveSites(activeSites);
-        // calculateCenter(activeSites);
+        const activeSites = data.filter(site => !site.archived);
+        setFilteredActiveSites(activeSites);
         calculateBounds(activeSites);
       }
     }
@@ -65,7 +68,10 @@ export default function ContextWrapper({ children }) {
       value={{
         allSites,
         setAllSites,
-        allActiveSites,
+        sitesToInclude,
+        setSitesToInclude,
+        filteredActiveSites,
+        setFilteredActiveSites,
         tempMarker,
         setTempMarker,
         currentZoom,

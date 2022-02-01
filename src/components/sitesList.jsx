@@ -6,7 +6,7 @@ import List from '@mui/material/List';
 import SiteListItem from './siteListItem';
 
 export default function SitesList() {
-  const { allActiveSites } = useContext(Context);
+  const { filteredActiveSites } = useContext(Context);
 
   return (
     <List
@@ -15,7 +15,7 @@ export default function SitesList() {
           overflowY: 'auto'
       }}
     >
-      {allActiveSites.map((site) => {
+      {filteredActiveSites.map((site) => {
         return (
           <SiteListItem
             key={site.sId}

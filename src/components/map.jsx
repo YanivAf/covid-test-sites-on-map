@@ -13,7 +13,7 @@ import { appbarHeight } from './appbar';
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
-  const { allActiveSites, tempMarker, setTempMarker, mapVisibleBounds, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter, firstLoad, setFirstLoad } = useContext(Context)
+  const { filteredActiveSites, tempMarker, setTempMarker, mapVisibleBounds, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter, firstLoad, setFirstLoad } = useContext(Context)
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSnackbar = (message, variant) => {
@@ -103,8 +103,8 @@ export default function Map() {
         onClick={e => handleTempMarker(e.event.target, e.lat, e.lng)}
         onChange={handleChange}
     >
-      {allActiveSites.length > 0 &&
-      allActiveSites.map(site => {
+      {filteredActiveSites.length > 0 &&
+      filteredActiveSites.map(site => {
         return (
           <SiteMarker
             key={site.sId}

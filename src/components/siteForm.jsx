@@ -18,7 +18,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import ArchiveSiteConfirm from './archiveSiteConfirm';
 
 export default function SiteForm({ existingSite, handleClosePopover }) {
-  const { allSites, setAllSites, tempMarker, setTempMarker } = useContext(Context);
+  const { allSites, setAllSites, sitesToInclude, setFilteredActiveSites, tempMarker, setTempMarker } = useContext(Context);
   const [siteInputs, setSiteInputs] = useState(existingSite ?
     existingSite :
     {
@@ -48,12 +48,18 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
   }
 
   const handleCloseArchiveConfirm = (isConfirmed) => {
-    isConfirmed && handleArchive();
+    if (isConfirmed) {
+      handleArchive();
+      handleClosePopover();
+    }
     setOpenArchiveConfirm(false);
   }
 
   const handleChange = (e) => {
-    setSiteInputs({ ...siteInputs, [e.target.name]: e.target.value });
+    setSiteInputs({
+      ...siteInputs,
+      [e.target.name]: e.target.value
+    });
   }
 
   const getExistingSiteIndex = (updatedAllSites) => {
@@ -64,6 +70,15 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
       return -1;
     }
     return siteToUpdateIndex;
+  }
+
+  const handleFilteredSites = (updatedAllSites) => {
+    const filteredActiveSites = updatedAllSites.filter(site => (
+      !site.archived &&
+      sitesToInclude.sTypeToInclude.includes(site.sType) &&
+      sitesToInclude.sTestTypeToInclude.includes(site.sTestType)
+    ));
+    setFilteredActiveSites(filteredActiveSites);
   }
 
   const handleSite = async (e, lat, lng) => {
@@ -82,7 +97,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
         createdAt: new Date(),
         updatedAt: new Date(),
         archived: false
-      });
+      });  
     } else {
       const siteToUpdateIndex = getExistingSiteIndex(updatedAllSites);
       if (siteToUpdateIndex === -1) return;
@@ -93,6 +108,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
     }
     setAllSites(updatedAllSites);
     localStorage.setItem('allSites', JSON.stringify(updatedAllSites));
+    handleFilteredSites(updatedAllSites);
     handleSnackbar(`Test Site "${siteInputs.sTitle}" has been successfully saved`, "success");
     setTempMarker({ ...tempMarker, show: false });
   }
@@ -108,6 +124,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
     };
     setAllSites(updatedAllSites);
     localStorage.setItem('allSites', JSON.stringify(updatedAllSites));
+    handleFilteredSites(updatedAllSites);
     handleSnackbar(`Test Site "${siteInputs.sTitle}" has been successfully archived`, "success");
   }
 
@@ -161,8 +178,8 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
           onChange={handleChange}
           readOnly={readOnly}
         >
-          <MenuItem value="Antigen">Antigen</MenuItem>
           <MenuItem value="PCR">PCR</MenuItem>
+          <MenuItem value="Antigen">Antigen</MenuItem>
           <MenuItem value="Both">Both</MenuItem>
         </Select>
       </FormControl>
