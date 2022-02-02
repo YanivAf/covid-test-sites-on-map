@@ -7,6 +7,7 @@ import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 import SitesList from './sitesList';
 import FilterForm from './filterForm';
@@ -94,6 +95,22 @@ export default function Sidebar() {
                 <span>{`Total: ${allVisibleSites.length} (of ${filteredActiveSites.length})`}</span>
               </span>} />
         </ListItem>
+        <ListItem>
+        <ListItemText
+            secondary={
+              <span style={{display: 'flex', justifyContent: 'space-between', fontSize: 11}}>
+                © all rights reserved to{" "}
+                <Link
+                  href="https://www.linkedin.com/in/yaniv-aflalo-8aa92386/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Yaniv Aflalo
+                </Link>
+                , full stack developer
+              </span>} />
+        </ListItem>
+
       </List>
       </> :
       <Typography variant='body1' align='center'>
