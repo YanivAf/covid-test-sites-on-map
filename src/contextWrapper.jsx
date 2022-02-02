@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SnackbarProvider } from 'notistack'
 import Context from "./components/context";
+import axios from 'axios';
 
 export const initialLocation = {
   address: 'Kikar Hamedina',
@@ -9,6 +10,7 @@ export const initialLocation = {
 }
 
 export default function ContextWrapper({ children }) {
+  const [loading, setLoading] = useState(true);
   const [allSites, setAllSites] = useState([]);
   const [sitesToInclude, setSitesToInclude] = useState({
     sTypeToInclude: ['Walk in', 'Drive in', 'Both'],
@@ -28,14 +30,19 @@ export default function ContextWrapper({ children }) {
   });
 
   const getSites = async () => {
-    const data = await JSON.parse(localStorage.getItem('allSites'));
-    if (data) {
-      setAllSites(data);
-      if (data.length > 0) {
-        const activeSites = data.filter(site => !site.archived);
-        setFilteredActiveSites(activeSites);
-        calculateBounds(activeSites);
+    try {
+      const { data } = await axios.get(`${process.env.REACT_APP_DOMAIN}/`, { withCredentials: true });
+      if (data) {
+        setAllSites(data);
+        if (data.length > 0) {
+          const activeSites = data.filter(site => !site.archived);
+          setFilteredActiveSites(activeSites);
+          calculateBounds(activeSites);
+          setLoading(false);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -66,6 +73,7 @@ export default function ContextWrapper({ children }) {
   return (
     <Context.Provider
       value={{
+        loading,
         allSites,
         setAllSites,
         sitesToInclude,

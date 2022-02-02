@@ -1,6 +1,8 @@
 import { useState, useContext } from 'react';
 import Context from './context';
 import { useSnackbar } from 'notistack';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 import FormControl from '@mui/material/FormControl';
 import TextField from "@mui/material/TextField";
@@ -82,6 +84,11 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
   }
 
   const handleSite = async (e, lat, lng) => {
+    try {
+      
+    } catch (error) {
+      
+    }
     e.preventDefault();
     const updatedAllSites = [...allSites];
     if (!existingSite) {
@@ -89,25 +96,29 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
       const locationDuplicate = updatedAllSites.filter(site => (site.lat === lat && site.lng === lng && site.archived === false));
       if (titleDuplicate.length > 0) return handleSnackbar(`Site title "${siteInputs.sTitle}" already exists. Please change and try again`, "error");
       if (locationDuplicate.length > 0) return handleSnackbar(`Site location already exists. Please change and try again`, "error");
-      updatedAllSites.push({
+      const newSite = {
         ...siteInputs,
-        sId: Math.round(Math.random() * 10000),
+        sId: uuidv4(),
         lat,
         lng,
         createdAt: new Date(),
         updatedAt: new Date(),
         archived: false
-      });  
+      };
+      updatedAllSites.unshift(newSite);
+      await axios.post(`${process.env.REACT_APP_DOMAIN}/`, newSite, { withCredentials: true });
     } else {
       const siteToUpdateIndex = getExistingSiteIndex(updatedAllSites);
       if (siteToUpdateIndex === -1) return;
-      updatedAllSites[siteToUpdateIndex] = {
+      const updatedSite = {
         ...siteInputs,
         updatedAt: new Date(),
-      };
+      }
+      updatedAllSites[siteToUpdateIndex] = updatedAllSites[0];
+      updatedAllSites[0] = updatedSite;
+      await axios.put(`${process.env.REACT_APP_DOMAIN}/`, updatedSite, { withCredentials: true });
     }
     setAllSites(updatedAllSites);
-    localStorage.setItem('allSites', JSON.stringify(updatedAllSites));
     handleFilteredSites(updatedAllSites);
     handleSnackbar(`Test Site "${siteInputs.sTitle}" has been successfully saved`, "success");
     setTempMarker({ ...tempMarker, show: false });
@@ -123,7 +134,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
       archived: true
     };
     setAllSites(updatedAllSites);
-    localStorage.setItem('allSites', JSON.stringify(updatedAllSites));
+    const { data } = await axios.put(`${process.env.REACT_APP_DOMAIN}/archive`, updatedAllSites[siteToUpdateIndex], { withCredentials: true });
     handleFilteredSites(updatedAllSites);
     handleSnackbar(`Test Site "${siteInputs.sTitle}" has been successfully archived`, "success");
   }

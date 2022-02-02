@@ -15,7 +15,7 @@ import { initialLocation } from '../contextWrapper';
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
-  const { filteredActiveSites, tempMarker, setTempMarker, mapVisibleBounds, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter, firstLoad, setFirstLoad } = useContext(Context)
+  const { loading, filteredActiveSites, tempMarker, setTempMarker, mapVisibleBounds, setMapVisibleBounds, currentZoom, setCurrentZoom, currentCenter, setCurrentCenter, firstLoad, setFirstLoad } = useContext(Context)
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSnackbar = (message, variant) => {
@@ -36,12 +36,17 @@ export default function Map() {
 
   const handleChange = (e) => {
     if (firstLoad) {
+      const sitesCount = filteredActiveSites.length;
       setFirstLoad(false);
-      if (filteredActiveSites.length === 0) {
+      if (sitesCount === 0) {
         setCurrentZoom(7);
         setCurrentCenter(initialLocation);
+      } else if (sitesCount === 1) {
+        setCurrentZoom(15);
+        setCurrentCenter({lat: filteredActiveSites[0].lat, lng: filteredActiveSites[0].lng});
       } else {
         const { zoom, center } = fitBounds(mapVisibleBounds, e.size);
+        console.log(filteredActiveSites.length);
         setCurrentZoom(zoom);
         setCurrentCenter(center);
       }
@@ -92,6 +97,8 @@ export default function Map() {
   
   return (
     <>
+    {!loading &&
+    <>
     <GoogleMapReact
         bootstrapURLKeys={{ key: apiKey }}
         defaultZoom={7}
@@ -129,6 +136,8 @@ export default function Map() {
       />
       }
     </GoogleMapReact>
+    </>
+    }
     </>
   );
 }
