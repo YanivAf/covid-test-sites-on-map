@@ -10,11 +10,7 @@ import TempMarker from './tempMarker';
 import { drawerWidth } from './sidebar';
 import { appbarHeight } from './appbar';
 
-export const initialLocation = {
-  address: 'Kikar Hamedina',
-  lat: 32.086920,
-  lng: 34.788670,
-}
+import { initialLocation } from '../contextWrapper';
 
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
