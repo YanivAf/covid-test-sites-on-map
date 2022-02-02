@@ -2,12 +2,6 @@ import { useState, useEffect } from "react";
 import { SnackbarProvider } from 'notistack'
 import Context from "./components/context";
 
-export const initialLocation = {
-  address: 'Kikar Hamedina',
-  lat: 32.086920,
-  lng: 34.788670,
-}
-
 export default function ContextWrapper({ children }) {
   const [allSites, setAllSites] = useState([]);
   const [sitesToInclude, setSitesToInclude] = useState({

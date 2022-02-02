@@ -10,6 +10,12 @@ import TempMarker from './tempMarker';
 import { drawerWidth } from './sidebar';
 import { appbarHeight } from './appbar';
 
+export const initialLocation = {
+  address: 'Kikar Hamedina',
+  lat: 32.086920,
+  lng: 34.788670,
+}
+
 const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 export default function Map() {
@@ -35,9 +41,14 @@ export default function Map() {
   const handleChange = (e) => {
     if (firstLoad) {
       setFirstLoad(false);
-      const { zoom, center } = fitBounds(mapVisibleBounds, e.size);
-      setCurrentZoom(zoom);
-      setCurrentCenter(center);
+      if (filteredActiveSites.length === 0) {
+        setCurrentZoom(7);
+        setCurrentCenter(initialLocation);
+      } else {
+        const { zoom, center } = fitBounds(mapVisibleBounds, e.size);
+        setCurrentZoom(zoom);
+        setCurrentCenter(center);
+      }
     } else {
       setMapVisibleBounds(e.bounds);
       setCurrentZoom(e.zoom);
