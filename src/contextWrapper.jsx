@@ -34,11 +34,11 @@ export default function ContextWrapper({ children }) {
       const { data } = await axios.get(`${process.env.REACT_APP_API_DOMAIN}/`, { withCredentials: true });
       if (data) {
         setAllSites(data);
+        setLoading(false);
         if (data.length > 0) {
           const activeSites = data.filter(site => !site.archived);
           setFilteredActiveSites(activeSites);
           calculateBounds(activeSites);
-          setLoading(false);
         }
       }
     } catch (error) {
