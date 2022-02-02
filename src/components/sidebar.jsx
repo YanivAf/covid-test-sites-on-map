@@ -98,7 +98,7 @@ export default function Sidebar() {
         <ListItem>
         <ListItemText
             secondary={
-              <span style={{display: 'flex', justifyContent: 'space-between', fontSize: 11}}>
+              <span style={{ fontSize: 11 }}>
                 © all rights reserved to{" "}
                 <Link
                   href="https://www.linkedin.com/in/yaniv-aflalo-8aa92386/"
