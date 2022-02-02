@@ -106,7 +106,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
         archived: false
       };
       updatedAllSites.unshift(newSite);
-      await axios.post(`${process.env.REACT_APP_DOMAIN}/`, newSite, { withCredentials: true });
+      await axios.post(`${process.env.REACT_APP_API_DOMAIN}/`, newSite, { withCredentials: true });
     } else {
       const siteToUpdateIndex = getExistingSiteIndex(updatedAllSites);
       if (siteToUpdateIndex === -1) return;
@@ -116,7 +116,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
       }
       updatedAllSites[siteToUpdateIndex] = updatedAllSites[0];
       updatedAllSites[0] = updatedSite;
-      await axios.put(`${process.env.REACT_APP_DOMAIN}/`, updatedSite, { withCredentials: true });
+      await axios.put(`${process.env.REACT_APP_API_DOMAIN}/`, updatedSite, { withCredentials: true });
     }
     setAllSites(updatedAllSites);
     handleFilteredSites(updatedAllSites);
@@ -134,7 +134,7 @@ export default function SiteForm({ existingSite, handleClosePopover }) {
       archived: true
     };
     setAllSites(updatedAllSites);
-    const { data } = await axios.put(`${process.env.REACT_APP_DOMAIN}/archive`, updatedAllSites[siteToUpdateIndex], { withCredentials: true });
+    const { data } = await axios.put(`${process.env.REACT_APP_API_DOMAIN}/archive`, updatedAllSites[siteToUpdateIndex], { withCredentials: true });
     handleFilteredSites(updatedAllSites);
     handleSnackbar(`Test Site "${siteInputs.sTitle}" has been successfully archived`, "success");
   }

@@ -31,7 +31,7 @@ export default function ContextWrapper({ children }) {
 
   const getSites = async () => {
     try {
-      const { data } = await axios.get(`${process.env.REACT_APP_DOMAIN}/`, { withCredentials: true });
+      const { data } = await axios.get(`${process.env.REACT_APP_API_DOMAIN}/`, { withCredentials: true });
       if (data) {
         setAllSites(data);
         if (data.length > 0) {
