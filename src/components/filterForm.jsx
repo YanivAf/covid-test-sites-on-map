@@ -26,12 +26,12 @@ export default function FilterForm() {
 
   useEffect(() => {
     let sTypeToInclude = ['Walk in', 'Drive in', 'Both'];
-    if (!walkIn) sTypeToInclude = ['Drive in'];
-    else if (!driveIn) sTypeToInclude = ['Walk in'];
+    if (!walkIn) sTypeToInclude = ['Drive in','Both'];
+    else if (!driveIn) sTypeToInclude = ['Walk in','Both'];
 
     let sTestTypeToInclude = ['PCR', 'Antigen', 'Both'];
-    if (!pcr) sTestTypeToInclude = ['Antigen'];
-    else if (!antigen) sTestTypeToInclude = ['PCR'];
+    if (!pcr) sTestTypeToInclude = ['Antigen','Both'];
+    else if (!antigen) sTestTypeToInclude = ['PCR','Both'];
     setSitesToInclude({ sTypeToInclude, sTestTypeToInclude });
 
     const filteredActiveSites = allSites.filter(site => (
